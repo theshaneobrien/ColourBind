@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class GameGrid : MonoBehaviour
@@ -9,7 +8,7 @@ public class GameGrid : MonoBehaviour
     [SerializeField]
     private List<Tile> gameGridTiles;
     [SerializeField]
-    private List<Tile> floorGridTiles;
+    private List<Tile> filterTiles;
 
     [SerializeField]
     private Transform playerBall;
@@ -50,111 +49,7 @@ public class GameGrid : MonoBehaviour
 
     private void CheckAdjacentTiles()
     {
-        #region Checking Regular Tiles
-        foreach (List<Tile> tileList in allTiles)
-        {
-            if (tileList != null)
-            {
-                foreach (Tile tile in tileList)
-                {
-                    tile.isTouchingSameColor = false;
-                    //Get the color we are checking for
-                    string tileColor = tile.color;
-                    //The current position of the tile we are checking
-                    ///POTENTIAL BUG HERE?! As FloorTile pos not updated every move...
-                    int gameGridPos = tile.pos;
-                    //The List indexes of the tiles left, right, up and down from us
-                    int leftPlace = gameGridPos - 10;
-                    int rightPlace = gameGridPos + 10;
-                    int upPlace = gameGridPos - 1;
-                    int downPlace = gameGridPos + 1;
-
-                    //If we are in the top row, don't check the next array index up
-                    if (gameGridPos % 10 == 0)
-                    {
-                        if (gameGridTiles[downPlace]?.color == tile.color ||
-                            gameGridTiles[leftPlace]?.color == tile.color ||
-                            gameGridTiles[rightPlace]?.color == tile.color ||
-                            floorGridTiles[gameGridPos]?.color == tile.color)
-                        {
-                            if (gameGridTiles[upPlace] != tile && gameGridTiles[leftPlace] != tile)
-                            {
-                                tile.isTouchingSameColor = true;
-                            }
-                        }
-                    }
-                    //If we are in the bottom row, don't check the previous array index up
-                    else if (gameGridPos % 10 == 9)
-                    {
-                        if (gameGridTiles[upPlace]?.color == tile.color ||
-                            gameGridTiles[leftPlace]?.color == tile.color ||
-                            gameGridTiles[rightPlace]?.color == tile.color ||
-                            floorGridTiles[gameGridPos]?.color == tile.color)
-                        {
-                            //Debug.Log("test bottom row");
-                            if (gameGridTiles[downPlace] != tile && gameGridTiles[rightPlace] != tile)
-                            {
-                                tile.isTouchingSameColor = true;
-                            }
-                        }
-                    }
-                    else
-                    //Otherwise check all directions
-                    {
-                        //Debug.Log("test anything else");
-                        if (gameGridTiles[upPlace]?.color == tile.color ||
-                            gameGridTiles[downPlace]?.color == tile.color ||
-                            gameGridTiles[leftPlace]?.color == tile.color ||
-                            gameGridTiles[rightPlace]?.color == tile.color ||
-                            floorGridTiles[gameGridPos]?.color == tile.color)
-                        {
-                            tile.isTouchingSameColor = true;
-                        }
-                    }
-
-                    if (gameGridPos == 0)
-                    {
-                        if (gameGridTiles[downPlace]?.color == tile.color ||
-                            gameGridTiles[rightPlace]?.color == tile.color)
-                        {
-                            //Debug.Log("test 0 pos");
-                            tile.isTouchingSameColor = true;
-                        }
-                    }
-                    else if (gameGridPos == 99)
-                    {
-                        if (gameGridTiles[upPlace]?.color == tile.color ||
-                            gameGridTiles[leftPlace]?.color == tile.color)
-                        {
-                            //Debug.Log("test 99 pos");
-                            tile.isTouchingSameColor = true;
-                        }
-                    }
-                    
-                }
-            }
-        }
-        #endregion
-
-        #region Checking Floor Tiles
-        foreach (Tile floorTile in floorGridTiles)
-        {
-            if (floorTile != null)
-            {
-                floorTile.isTouchingSameColor = false;
-                //Get the color we are checking for
-                string tileColor = floorTile.color;
-                //The current position of the tile we are checking
-                int floorGridPos = floorGridTiles.IndexOf(floorTile);
-
-                if (gameGridTiles[floorGridPos]?.color == tileColor)
-                {
-                    floorTile.isTouchingSameColor = true;
-                    gameGridTiles[floorGridPos].isTouchingSameColor = true;
-                }
-            }
-        }
-        #endregion
+        //TODO: Needs refactor
 
         CheckWin();
     }
@@ -202,31 +97,52 @@ public class GameGrid : MonoBehaviour
 
     public bool ValidateLeftMovement(int playerMovement)
     {
+        //Current player array location
         int currentPlayerPos = gameGridTransforms.IndexOf(playerBall);
+        //Desired player array location
         int desiredPos = currentPlayerPos + playerMovement;
 
+        //If we are not in the very first pos of the array
         if (desiredPos >= 0)
         {
+            //Check if the desired position in the array is free, and within the bounds
             if (gameGridTransforms[desiredPos] == null && desiredPos >= 0 && desiredPos < 100)
             {
+                //Remove player from the position they were in
                 gameGridTransforms[currentPlayerPos] = null;
+                //Put the player in the position they want to be in
                 gameGridTransforms[desiredPos] = playerBall;
                 return true;
             }
+            //If the desired position has a moveable time, we move the player and the tile
             else if (gameGridTransforms[desiredPos].tag == "moveableTile")
             {
-                Transform tile = gameGridTransforms[desiredPos];
+                //Cache the specific tile we will be affecting
+                Transform tileTransform = gameGridTransforms[desiredPos];
+                Tile tile = gameGridTiles[desiredPos];
+                //Calculate the tiles new potential position
                 int tileDesiredPos = desiredPos + playerMovement;
 
+                //If the desired position of the tile is within bounds and empty, move it
+                //TODO: Add in filter checks!
                 if (tileDesiredPos >= 0 && gameGridTransforms[tileDesiredPos] == null)
                 {
-                    tile.transform.position = new Vector3(tile.transform.position.x - 1, tile.transform.position.y, tile.transform.position.z);
-                    gameGridTransforms[currentPlayerPos] = null;
-                    gameGridTransforms[tileDesiredPos] = tile;
-                    gameGridTransforms[desiredPos] = playerBall;
-                    UpdateGameGridTiles();
-                    CheckAdjacentTiles();
-                    return true;
+                    if (filterTiles[tileDesiredPos] == null || filterTiles[tileDesiredPos].color == tile.color)
+                    {
+                        //Update the tile's position in the scene
+                        tileTransform.transform.position = new Vector3(tileTransform.transform.position.x - 1, tileTransform.transform.position.y, tileTransform.transform.position.z);
+                        //Remove the player from the previous position
+                        gameGridTransforms[currentPlayerPos] = null;
+                        //Put the tile in it's desired position
+                        gameGridTransforms[tileDesiredPos] = tileTransform;
+                        //Put the player in the desired position
+                        gameGridTransforms[desiredPos] = playerBall;
+                        //Update the GameGridTile Array to match the transform array
+                        UpdateGameGridTiles();
+                        //Check if the tiles are touching tiles of the same color
+                        CheckAdjacentTiles();
+                        return true;
+                    }
                 }
             }
         }
@@ -247,18 +163,22 @@ public class GameGrid : MonoBehaviour
             }
             else if(gameGridTransforms[desiredPos].tag == "moveableTile")
             {
-                Transform tile = gameGridTransforms[desiredPos];
+                Transform tileTransform = gameGridTransforms[desiredPos];
+                Tile tile = gameGridTiles[desiredPos];
                 int tileDesiredPos = desiredPos + playerMovement;
 
                 if (tileDesiredPos < 100 && gameGridTransforms[tileDesiredPos] == null)
                 {
-                    tile.transform.position = new Vector3(tile.transform.position.x + 1, tile.transform.position.y, tile.transform.position.z);
-                    gameGridTransforms[currentPlayerPos] = null;
-                    gameGridTransforms[tileDesiredPos] = tile;
-                    gameGridTransforms[desiredPos] = playerBall;
-                    UpdateGameGridTiles();
-                    CheckAdjacentTiles();
-                    return true;
+                    if (filterTiles[tileDesiredPos] == null || filterTiles[tileDesiredPos].color == tile.color)
+                    {
+                        tileTransform.transform.position = new Vector3(tileTransform.transform.position.x + 1, tileTransform.transform.position.y, tileTransform.transform.position.z);
+                        gameGridTransforms[currentPlayerPos] = null;
+                        gameGridTransforms[tileDesiredPos] = tileTransform;
+                        gameGridTransforms[desiredPos] = playerBall;
+                        UpdateGameGridTiles();
+                        CheckAdjacentTiles();
+                        return true;
+                    }
                 }
             }
         }
@@ -279,19 +199,23 @@ public class GameGrid : MonoBehaviour
             }
             else if (gameGridTransforms[desiredPos].tag == "moveableTile")
             {
-                Transform tile = gameGridTransforms[desiredPos];
+                Transform tileTransform = gameGridTransforms[desiredPos];
+                Tile tile = gameGridTiles[desiredPos];
                 int tilePos = desiredPos;
                 int tileDesiredPos = desiredPos + playerMovement;
 
                 if (tilePos % 10 != 0 && gameGridTransforms[tileDesiredPos] == null)
                 {
-                    tile.transform.position = new Vector3(tile.transform.position.x, tile.transform.position.y, tile.transform.position.z + 1);
-                    gameGridTransforms[currentPlayerPos] = null;
-                    gameGridTransforms[tileDesiredPos] = tile;
-                    gameGridTransforms[desiredPos] = playerBall;
-                    UpdateGameGridTiles();
-                    CheckAdjacentTiles();
-                    return true;
+                    if (filterTiles[tileDesiredPos] == null || filterTiles[tileDesiredPos].color == tile.color)
+                    {
+                        tileTransform.transform.position = new Vector3(tileTransform.transform.position.x, tileTransform.transform.position.y, tileTransform.transform.position.z + 1);
+                        gameGridTransforms[currentPlayerPos] = null;
+                        gameGridTransforms[tileDesiredPos] = tileTransform;
+                        gameGridTransforms[desiredPos] = playerBall;
+                        UpdateGameGridTiles();
+                        CheckAdjacentTiles();
+                        return true;
+                    }
                 }
             }
         }
@@ -312,19 +236,23 @@ public class GameGrid : MonoBehaviour
             }
             else if (gameGridTransforms[desiredPos].tag == "moveableTile")
             {
-                Transform tile = gameGridTransforms[desiredPos];
+                Transform tileTransform = gameGridTransforms[desiredPos];
+                Tile tile = gameGridTiles[desiredPos];
                 int tilePos = desiredPos;
                 int tileDesiredPos = desiredPos + playerMovement;
 
                 if (tileDesiredPos % 10 != 0 && gameGridTransforms[tileDesiredPos] == null)
                 {
-                    tile.transform.position = new Vector3(tile.transform.position.x, tile.transform.position.y, tile.transform.position.z - 1);
-                    gameGridTransforms[currentPlayerPos] = null;
-                    gameGridTransforms[tileDesiredPos] = tile;
-                    gameGridTransforms[desiredPos] = playerBall;
-                    UpdateGameGridTiles();
-                    CheckAdjacentTiles();
-                    return true;
+                    if (filterTiles[tileDesiredPos] == null || filterTiles[tileDesiredPos].color == tile.color)
+                    {
+                        tileTransform.transform.position = new Vector3(tileTransform.transform.position.x, tileTransform.transform.position.y, tileTransform.transform.position.z - 1);
+                        gameGridTransforms[currentPlayerPos] = null;
+                        gameGridTransforms[tileDesiredPos] = tileTransform;
+                        gameGridTransforms[desiredPos] = playerBall;
+                        UpdateGameGridTiles();
+                        CheckAdjacentTiles();
+                        return true;
+                    }
                 }
             }
         }
