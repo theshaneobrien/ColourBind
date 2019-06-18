@@ -7,6 +7,11 @@ public class BallMovement : MonoBehaviour
     [SerializeField]
     private GameGrid gameGrid;
 
+    public void SetGameGrid(GameGrid grid)
+    {
+        gameGrid = grid;
+    }
+
 
     // Start is called before the first frame update
     void Start()
@@ -74,7 +79,7 @@ public class BallMovement : MonoBehaviour
 
     public void MoveUp()
     {
-        if (gameGrid.ValidateUpMovement(-1))
+        if (gameGrid.ValidateUpMovement(1))
         {
             //TODO:Check if we can move in the desired direction
             transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z + 1);
@@ -83,7 +88,7 @@ public class BallMovement : MonoBehaviour
 
     public void MoveDown()
     {
-        if (gameGrid.ValidateDownMovement(1))
+        if (gameGrid.ValidateDownMovement(-1))
         {
             //TODO:Check if we can move in the desired direction
             transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z - 1);
