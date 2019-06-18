@@ -150,10 +150,6 @@ public class GameGrid : MonoBehaviour
         private void CheckWin()
     {
         ClearLogConsole();
-        Debug.Log("Got " + redCheckedTiles.Count + " red tiles");
-        Debug.Log("Got " + greenCheckedTiles.Count + " green tiles");
-        Debug.Log("Got " + (blueCheckedTiles.Count + 1) + " blue tiles");
-        Debug.Log("Got " + yellowCheckedTiles.Count + " yellow tiles");
         for (int i = 0; i < redCheckedTiles.Count; i++)
         {
             redCheckedTiles[i].ResetChecks();
@@ -181,6 +177,11 @@ public class GameGrid : MonoBehaviour
         }
         yellowCheckedTiles.Clear();
         CheckChain(yellowTiles[0], yellowTiles, yellowCheckedTiles);
+
+        Debug.Log("Got " + redCheckedTiles.Count + " red tiles");
+        Debug.Log("Got " + greenCheckedTiles.Count + " green tiles");
+        Debug.Log("Got " + blueCheckedTiles.Count + " blue tiles");
+        Debug.Log("Got " + yellowCheckedTiles.Count + " yellow tiles");
     }
 
     public bool ValidateLeftMovement(int playerMovement)
