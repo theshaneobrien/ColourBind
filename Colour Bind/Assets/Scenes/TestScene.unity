@@ -239,12 +239,14 @@ MonoBehaviour:
   - {fileID: 4014594191627219973, guid: a5649c1ca0f90a242a87fafcbd56093f, type: 3}
   - {fileID: 8696105180851966467, guid: 7ca07fc70afc950429600c2c29e779b6, type: 3}
   - {fileID: 6311921994289634539, guid: fb485bf2f76b15e44800f124585ada3a, type: 3}
+  - {fileID: 4177468555045668504, guid: 3517fee03a6f20d498b30091f88c20bc, type: 3}
   filterTilePrefabs:
   - {fileID: 4177468555045668504, guid: 53e68a902d28dbe438ed76f1961eaed4, type: 3}
-  - {fileID: 5488876857017847420, guid: 6b9874dbfee7d254e98337f773c9ddbb, type: 3}
-  - {fileID: 4014594191627219973, guid: a5649c1ca0f90a242a87fafcbd56093f, type: 3}
-  - {fileID: 8696105180851966467, guid: 7ca07fc70afc950429600c2c29e779b6, type: 3}
-  - {fileID: 6311921994289634539, guid: fb485bf2f76b15e44800f124585ada3a, type: 3}
+  - {fileID: 5488876857017847420, guid: ac9b2383bb1b53f47a87b7bfffc8eaf7, type: 3}
+  - {fileID: 4014594191627219973, guid: c2ea3f831453d644bb2e637f290a82b2, type: 3}
+  - {fileID: 8696105180851966467, guid: 47acafb19ea478144a22aec55b629bc0, type: 3}
+  - {fileID: 6311921994289634539, guid: 9bb1fbf4b1984dd44b7365203a4f250a, type: 3}
+  - {fileID: 4177468555045668504, guid: e7f3305d3e497364bbeeb929d8dbce60, type: 3}
   player: {fileID: 2553852613027507307, guid: a272cc977f283414f96f9c8e19dd664b, type: 3}
   gameGrid: {fileID: 1896130827}
   currentLevel: {fileID: 11400000, guid: 1c908319a0eb0cb4485c52af40ab912b, type: 2}
@@ -462,7 +464,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  filterTiles: []
 --- !u!4 &1896130828
 Transform:
   m_ObjectHideFlags: 0

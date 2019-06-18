@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - moveableTile
+  - filter
+  - blackHole
+  - unmoveableTile
   layers:
   - Default
   - TransparentFX

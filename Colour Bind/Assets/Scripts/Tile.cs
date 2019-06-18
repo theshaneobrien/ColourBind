@@ -5,10 +5,17 @@ using UnityEngine;
 public class Tile : MonoBehaviour
 {
     public string color = "red";
-    public bool isTouchingSameColor = false;
+    public bool upChecked = false;
+    public bool downChecked = false;
+    public bool leftChecked = false;
+    public bool rightChecked = false;
     public int pos = 0;
 
-    public void Start()
+    public void ResetChecks()
     {
+        upChecked = false;
+        downChecked = false;
+        leftChecked = false;
+        rightChecked = false;
     }
 }

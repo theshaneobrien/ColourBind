@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 public class GameGrid : MonoBehaviour
@@ -7,10 +9,20 @@ public class GameGrid : MonoBehaviour
     private List<Transform> gameGridTransforms;
     [SerializeField]
     private List<Tile> gameGridTiles;
-    [SerializeField]
-    private List<Tile> filterTiles;
+    private List<Tile> filterTiles = new List<Tile>();
+
+    private List<Tile> redTiles = new List<Tile>();
+    private List<Tile> greenTiles = new List<Tile>();
+    private List<Tile> blueTiles = new List<Tile>();
+    private List<Tile> yellowTiles = new List<Tile>();
+
+    private List<Tile> redCheckedTiles = new List<Tile>();
+    private List<Tile> greenCheckedTiles = new List<Tile>();
+    private List<Tile> blueCheckedTiles = new List<Tile>();
+    private List<Tile> yellowCheckedTiles = new List<Tile>();
 
     private Transform playerBall;
+
 
     public void AddFilterTileToGrid(Tile tile)
     {
@@ -27,29 +39,148 @@ public class GameGrid : MonoBehaviour
     {
         gameGridTiles[position] = tile;
         gameGridTransforms[position] = tile.transform;
+        AddTileToColor(tile);
     }
-
-    private void CheckAdjacentTiles()
+    private void AddTileToColor(Tile tile)
     {
-        //TODO: Needs refactor
-
-        CheckWin();
-    }
-
-    private bool CheckWin()
-    {
-        foreach (Tile tile in gameGridTiles)
+        switch (tile.color)
         {
-            if (tile != null)
+            case "red":
+                redTiles.Add(tile);
+                break;
+            case "green":
+                greenTiles.Add(tile);
+                break;
+            case "blue":
+                blueTiles.Add(tile);
+                break;
+            case "yellow":
+                yellowTiles.Add(tile);
+                break;
+        }
+    }
+
+    private void CheckChain(Tile currentTile, List<Tile> colorToCheckAgainst, List<Tile> checkedColor)
+    {
+        if (checkedColor.Count < colorToCheckAgainst.Count)
+        {
+            int tilePos = gameGridTiles.IndexOf(currentTile);
+            int upPos = tilePos + 1;
+            int downPos = tilePos - 1;
+            int leftPos = tilePos - 10;
+            int rightPos = tilePos + 10;
+
+            if (upPos % 10 != 0 && upPos < 100)
             {
-                if (!tile.isTouchingSameColor)
+                Tile upTile = gameGridTiles[upPos];
+                if (upTile != null && !currentTile.upChecked && upTile.color == currentTile.color)
                 {
-                    return false;
+                    if (!checkedColor.Contains(currentTile))
+                    {
+                        checkedColor.Add(currentTile);
+                    }
+                    currentTile.upChecked = true;
+                    CheckChain(upTile, colorToCheckAgainst, checkedColor);
                 }
             }
+
+            if (downPos % 10 != 9 && downPos > 0)
+            {
+                Tile downTile = gameGridTiles[downPos];
+                if (downTile != null && !currentTile.downChecked && downTile.color == currentTile.color)
+                {
+                    if (!checkedColor.Contains(currentTile))
+                    {
+                        checkedColor.Add(currentTile);
+                    }
+                    currentTile.downChecked = true;
+                    CheckChain(downTile, colorToCheckAgainst, checkedColor);
+                }
+            }
+
+            if (leftPos > 0)
+            {
+                Tile leftTile = gameGridTiles[leftPos];
+                if (leftTile != null && !currentTile.leftChecked && leftTile.color == currentTile.color)
+                {
+                    if (!checkedColor.Contains(currentTile))
+                    {
+                        checkedColor.Add(currentTile);
+                    }
+                    currentTile.leftChecked = true;
+                    CheckChain(leftTile, colorToCheckAgainst, checkedColor);
+                }
+            }
+
+            if (rightPos < 100)
+            {
+                Tile rightTile = gameGridTiles[rightPos];
+                if (rightTile != null && !currentTile.rightChecked && rightTile.color == currentTile.color)
+                {
+                    if (!checkedColor.Contains(currentTile))
+                    {
+                        checkedColor.Add(currentTile);
+                    }
+                    currentTile.rightChecked = true;
+                    CheckChain(rightTile, colorToCheckAgainst, checkedColor);
+                }
+            };
         }
-        Debug.Log("You won!");
-        return true;
+    }
+        static MethodInfo _clearConsoleMethod;
+        static MethodInfo clearConsoleMethod
+        {
+            get
+            {
+                if (_clearConsoleMethod == null)
+                {
+                    Assembly assembly = Assembly.GetAssembly(typeof(UnityEditor.SceneView));
+                    Type logEntries = assembly.GetType("UnityEditor.LogEntries");
+                    _clearConsoleMethod = logEntries.GetMethod("Clear");
+                }
+                return _clearConsoleMethod;
+            }
+        }
+
+        public static void ClearLogConsole()
+        {
+            clearConsoleMethod.Invoke(new object(), null);
+        }
+
+        private void CheckWin()
+    {
+        ClearLogConsole();
+        Debug.Log("Got " + redCheckedTiles.Count + " red tiles");
+        Debug.Log("Got " + greenCheckedTiles.Count + " green tiles");
+        Debug.Log("Got " + (blueCheckedTiles.Count + 1) + " blue tiles");
+        Debug.Log("Got " + yellowCheckedTiles.Count + " yellow tiles");
+        for (int i = 0; i < redCheckedTiles.Count; i++)
+        {
+            redCheckedTiles[i].ResetChecks();
+        }
+        redCheckedTiles.Clear();
+        CheckChain(redTiles[0], redTiles, redCheckedTiles);
+
+        for (int i = 0; i < greenCheckedTiles.Count; i++)
+        {
+            greenCheckedTiles[i].ResetChecks();
+        }
+        greenCheckedTiles.Clear();
+        CheckChain(greenTiles[0], greenTiles, greenCheckedTiles);
+
+        for (int i = 0; i < blueCheckedTiles.Count; i++)
+        {
+            blueCheckedTiles[i].ResetChecks();
+        }
+        blueCheckedTiles.Clear();
+        CheckChain(blueTiles[0], blueTiles, blueCheckedTiles);
+
+        for (int i = 0; i < yellowCheckedTiles.Count; i++)
+        {
+            yellowCheckedTiles[i].ResetChecks();
+        }
+        yellowCheckedTiles.Clear();
+        CheckChain(yellowTiles[0], yellowTiles, yellowCheckedTiles);
     }
 
     public bool ValidateLeftMovement(int playerMovement)
@@ -91,13 +222,15 @@ public class GameGrid : MonoBehaviour
                         //Remove the player from the previous position
                         gameGridTransforms[currentPlayerPos] = null;
                         //Put the tile in it's desired position
+                        gameGridTiles[desiredPos] = null;
                         gameGridTransforms[tileDesiredPos] = tileTransform;
+                        gameGridTiles[tileDesiredPos] = tile;
                         //Put the player in the desired position
                         gameGridTransforms[desiredPos] = playerBall;
                         //Update the GameGridTile Array to match the transform array
 
                         //Check if the tiles are touching tiles of the same color
-                        CheckAdjacentTiles();
+                        CheckWin();
                         return true;
                     }
                 }
@@ -130,10 +263,11 @@ public class GameGrid : MonoBehaviour
                     {
                         tileTransform.transform.position = new Vector3(tileTransform.transform.position.x + 1, tileTransform.transform.position.y, tileTransform.transform.position.z);
                         gameGridTransforms[currentPlayerPos] = null;
+                        gameGridTiles[desiredPos] = null;
                         gameGridTransforms[tileDesiredPos] = tileTransform;
+                        gameGridTiles[tileDesiredPos] = tile;
                         gameGridTransforms[desiredPos] = playerBall;
-
-                        CheckAdjacentTiles();
+                        CheckWin();
                         return true;
                     }
                 }
@@ -167,10 +301,11 @@ public class GameGrid : MonoBehaviour
                     {
                         tileTransform.transform.position = new Vector3(tileTransform.transform.position.x, tileTransform.transform.position.y, tileTransform.transform.position.z + 1);
                         gameGridTransforms[currentPlayerPos] = null;
+                        gameGridTiles[desiredPos] = null;
                         gameGridTransforms[tileDesiredPos] = tileTransform;
+                        gameGridTiles[tileDesiredPos] = tile;
                         gameGridTransforms[desiredPos] = playerBall;
-
-                        CheckAdjacentTiles();
+                        CheckWin();
                         return true;
                     }
                 }
@@ -204,10 +339,11 @@ public class GameGrid : MonoBehaviour
                     {
                         tileTransform.transform.position = new Vector3(tileTransform.transform.position.x, tileTransform.transform.position.y, tileTransform.transform.position.z - 1);
                         gameGridTransforms[currentPlayerPos] = null;
+                        gameGridTiles[desiredPos] = null;
                         gameGridTransforms[tileDesiredPos] = tileTransform;
+                        gameGridTiles[tileDesiredPos] = tile;
                         gameGridTransforms[desiredPos] = playerBall;
-
-                        CheckAdjacentTiles();
+                        CheckWin();
                         return true;
                     }
                 }
