@@ -6,9 +6,9 @@ using UnityEngine;
 public class GameGrid : MonoBehaviour
 {
     [SerializeField]
-    private List<Transform> gameGridTransforms;
+    private List<Transform> gameGridTransforms = new List<Transform>();
     [SerializeField]
-    private List<Tile> gameGridTiles;
+    private List<Tile> gameGridTiles = new List<Tile>();
     private List<Tile> filterTiles = new List<Tile>();
 
     private List<Tile> redTiles = new List<Tile>();
@@ -20,6 +20,9 @@ public class GameGrid : MonoBehaviour
     private List<Tile> greenCheckedTiles = new List<Tile>();
     private List<Tile> blueCheckedTiles = new List<Tile>();
     private List<Tile> yellowCheckedTiles = new List<Tile>();
+
+    [SerializeField]
+    private LevelSpawner levelSpawner;
 
     private Transform playerBall;
 
@@ -37,9 +40,17 @@ public class GameGrid : MonoBehaviour
 
     public void AddTileToGrid(Tile tile, int position)
     {
-        gameGridTiles[position] = tile;
-        gameGridTransforms[position] = tile.transform;
-        AddTileToColor(tile);
+        if (tile != null)
+        {
+            gameGridTiles.Add(tile);
+            gameGridTransforms.Add(tile.transform);
+            AddTileToColor(tile);
+        }
+        else
+        {
+            gameGridTiles.Add(null);
+            gameGridTransforms.Add(null);
+        }
     }
     private void AddTileToColor(Tile tile)
     {
@@ -84,7 +95,7 @@ public class GameGrid : MonoBehaviour
                 }
             }
 
-            if (downPos % 10 != 9 && downPos > 0)
+            if (downPos % 10 != 9 && downPos >= 0)
             {
                 Tile downTile = gameGridTiles[downPos];
                 if (downTile != null && !currentTile.downChecked && downTile.color == currentTile.color)
@@ -98,7 +109,7 @@ public class GameGrid : MonoBehaviour
                 }
             }
 
-            if (leftPos > 0)
+            if (leftPos >= 0)
             {
                 Tile leftTile = gameGridTiles[leftPos];
                 if (leftTile != null && !currentTile.leftChecked && leftTile.color == currentTile.color)
@@ -127,29 +138,9 @@ public class GameGrid : MonoBehaviour
             };
         }
     }
-        static MethodInfo _clearConsoleMethod;
-        static MethodInfo clearConsoleMethod
-        {
-            get
-            {
-                if (_clearConsoleMethod == null)
-                {
-                    Assembly assembly = Assembly.GetAssembly(typeof(UnityEditor.SceneView));
-                    Type logEntries = assembly.GetType("UnityEditor.LogEntries");
-                    _clearConsoleMethod = logEntries.GetMethod("Clear");
-                }
-                return _clearConsoleMethod;
-            }
-        }
-
-        public static void ClearLogConsole()
-        {
-            clearConsoleMethod.Invoke(new object(), null);
-        }
 
         private void CheckWin()
     {
-        ClearLogConsole();
         for (int i = 0; i < redCheckedTiles.Count; i++)
         {
             redCheckedTiles[i].ResetChecks();
@@ -182,6 +173,15 @@ public class GameGrid : MonoBehaviour
         Debug.Log("Got " + greenCheckedTiles.Count + " green tiles");
         Debug.Log("Got " + blueCheckedTiles.Count + " blue tiles");
         Debug.Log("Got " + yellowCheckedTiles.Count + " yellow tiles");
+
+        if(redCheckedTiles.Count == redTiles.Count &&
+            greenCheckedTiles.Count == greenTiles.Count &&
+            blueCheckedTiles.Count == blueTiles.Count &&
+            yellowCheckedTiles.Count == yellowTiles.Count)
+        {
+            Debug.Log("You Win");
+            levelSpawner.LoadNextLevel();
+        }
     }
 
     public bool ValidateLeftMovement(int playerMovement)
@@ -195,7 +195,7 @@ public class GameGrid : MonoBehaviour
         if (desiredPos >= 0)
         {
             //Check if the desired position in the array is free, and within the bounds
-            if (gameGridTransforms[desiredPos] == null && desiredPos >= 0 && desiredPos < 100)
+            if (gameGridTransforms[desiredPos] == null && desiredPos >= 0 && desiredPos < 100 && filterTiles[desiredPos].tag != "blackHole")
             {
                 //Remove player from the position they were in
                 gameGridTransforms[currentPlayerPos] = null;
@@ -204,7 +204,8 @@ public class GameGrid : MonoBehaviour
                 return true;
             }
             //If the desired position has a moveable tile, we move the player and the tile
-            else if (gameGridTransforms[desiredPos].tag == "moveableTile")
+            //DUNNO WHY THIS ? is required to prevent the null
+            else if (gameGridTransforms[desiredPos]?.tag == "moveableTile")
             {
                 //Cache the specific tile we will be affecting
                 Transform tileTransform = gameGridTransforms[desiredPos];
@@ -244,7 +245,7 @@ public class GameGrid : MonoBehaviour
         int currentPlayerPos = gameGridTransforms.IndexOf(playerBall);
         int desiredPos = currentPlayerPos + playerMovement;
 
-        if (desiredPos < 100)
+        if (desiredPos < 100 && filterTiles[desiredPos].tag != "blackHole")
         {
             if (gameGridTransforms[desiredPos] == null)
             {
@@ -281,7 +282,7 @@ public class GameGrid : MonoBehaviour
     {
         int currentPlayerPos = gameGridTransforms.IndexOf(playerBall);
         int desiredPos = currentPlayerPos + playerMovement;
-        if (currentPlayerPos % 10 != 9)
+        if (currentPlayerPos % 10 != 9 && filterTiles[desiredPos].color != "black")
         {
             if (gameGridTransforms[desiredPos] == null)
             {
@@ -319,7 +320,7 @@ public class GameGrid : MonoBehaviour
     {
         int currentPlayerPos = gameGridTransforms.IndexOf(playerBall);
         int desiredPos = currentPlayerPos + playerMovement;
-        if (currentPlayerPos % 10 != 0)
+        if (currentPlayerPos % 10 != 0 && filterTiles[desiredPos].color != "black")
         {
             if (gameGridTransforms[desiredPos] == null)
             {
@@ -351,5 +352,29 @@ public class GameGrid : MonoBehaviour
             }
         }
         return false;
+    }
+
+    public void CleanUpLevel()
+    {
+        //remove all tiles, reset all arrays
+        for (int i = 0; i < gameGridTiles.Count; i++)
+        {
+            if (gameGridTiles[i] != null)
+            {
+                Destroy(gameGridTiles[i].gameObject);
+            }
+        }
+        gameGridTiles.Clear();
+        gameGridTransforms.Clear();
+        redTiles.Clear();
+        blueTiles.Clear();
+        greenTiles.Clear();
+        yellowTiles.Clear();
+        for (int i = 0; i < filterTiles.Count; i++)
+        {
+            Destroy(filterTiles[i].gameObject);
+        }
+        filterTiles.Clear();
+        Destroy(playerBall.gameObject);
     }
 }

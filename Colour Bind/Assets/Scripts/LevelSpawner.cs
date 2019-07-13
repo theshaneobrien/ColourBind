@@ -12,19 +12,20 @@ public class LevelSpawner : MonoBehaviour
     public GameGrid gameGrid;
 
     public Level currentLevel;
+    public List<Level> levels;
 
 
     public void Awake()
     {
-        SpawnInitialLevel();
-        SpawnGameGridTiles();
+        SpawnLevel(levels[0]);
+        SpawnGameGridTiles(levels[0]);
     }
 
-    public void SpawnInitialLevel()
+    public void SpawnLevel(Level levelToSpawn)
     {
         int xPos = -1;
         int yPos = 0;
-        for (int i = 0; i < currentLevel.filterTileIds.Count; i++)
+        for (int i = 0; i < levelToSpawn.filterTileIds.Count; i++)
         {
             if (i % 10 == 0)
             {
@@ -33,34 +34,50 @@ public class LevelSpawner : MonoBehaviour
             }
             yPos++;
 
-            Tile tile = Instantiate(filterTilePrefabs[currentLevel.filterTileIds[i]], new Vector3(xPos, 0, yPos - 1), Quaternion.identity).GetComponent<Tile>();
+            Tile tile = Instantiate(filterTilePrefabs[levelToSpawn.filterTileIds[i]], new Vector3(xPos, 0, yPos - 1), Quaternion.identity).GetComponent<Tile>();
             gameGrid.AddFilterTileToGrid(tile);
-            if (i == currentLevel.playerPos)
+        }
+    }
+
+    public void SpawnGameGridTiles(Level levelToSpawn)
+    {
+        int xPos = -1;
+        int yPos = 0;
+        for (int i = 0; i < levelToSpawn.gameGridTileIds.Count; i++)
+        {
+            if (i % 10 == 0)
+            {
+                xPos++;
+                yPos = 0;
+            }
+            yPos++;
+            if (levelToSpawn.gameGridTileIds[i] != 0)
+            {
+                Tile tile = Instantiate(gameGridTilePrefabs[levelToSpawn.gameGridTileIds[i]], new Vector3(xPos, 1, yPos - 1), Quaternion.identity).GetComponent<Tile>();
+                gameGrid.AddTileToGrid(tile, i);
+
+            }
+            else
+            {
+                gameGrid.AddTileToGrid(null, i);
+            }
+            if (i == levelToSpawn.playerPos)
             {
                 BallMovement playerBall = Instantiate(player, new Vector3(xPos, 1, yPos - 1), Quaternion.identity).GetComponent<BallMovement>();
-                gameGrid.AddPlayer(playerBall.transform, i);
                 playerBall.SetGameGrid(gameGrid);
+                gameGrid.AddPlayer(playerBall.transform, i);
             }
         }
     }
 
-    public void SpawnGameGridTiles()
+    public void LoadNextLevel()
     {
-        int xPos = -1;
-        int yPos = 0;
-        for (int i = 0; i < currentLevel.gameGridTileIds.Count; i++)
+        if (levels.IndexOf(currentLevel) != levels.Count - 1)
         {
-            if (i % 10 == 0)
-            {
-                xPos++;
-                yPos = 0;
-            }
-            yPos++;
-            if (currentLevel.gameGridTileIds[i] != 0)
-            {
-                Tile tile = Instantiate(gameGridTilePrefabs[currentLevel.gameGridTileIds[i]], new Vector3(xPos, 1, yPos - 1), Quaternion.identity).GetComponent<Tile>();
-                gameGrid.AddTileToGrid(tile, i);
-            }
+            currentLevel = levels[levels.IndexOf(currentLevel) + 1];
+            gameGrid.CleanUpLevel();
+            SpawnLevel(currentLevel);
+            SpawnGameGridTiles(currentLevel);
         }
     }
 }
