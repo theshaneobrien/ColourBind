@@ -254,6 +254,24 @@ public class GameGrid : MonoBehaviour
                         //Check if the tiles are touching tiles of the same color
                         CheckWin();
                         return true;
+                    }else if(filterTiles[tileDesiredPos].color == "black")
+                    {
+                        //Update the tile's position in the scene
+                        gameState.playMoveSound();
+                        //Remove the player from the previous position
+                        gameGridTransforms[currentPlayerPos] = null;
+                        //Put the tile in it's desired position
+                        gameGridTiles[desiredPos] = null;
+                        gameGridTransforms[tileDesiredPos] = tileTransform;
+                        gameGridTiles[tileDesiredPos] = tile;
+                        //Put the player in the desired position
+                        gameGridTransforms[desiredPos] = playerBall;
+                        //Update the GameGridTile Array to match the transform array
+
+                        StartCoroutine(MoveTileToPos(tileTransform, new Vector3(tileTransform.transform.position.x - 1, tileTransform.transform.position.y, tileTransform.transform.position.z)));
+                        //Check if the tiles are touching tiles of the same color
+                        StartCoroutine(gameState.DeathByTileFall(tile.GetComponent<Animator>()));
+                        return true;
                     }
                 }
             }
@@ -296,6 +314,25 @@ public class GameGrid : MonoBehaviour
                         gameGridTransforms[desiredPos] = playerBall;
                         StartCoroutine(MoveTileToPos(tileTransform, new Vector3(tileTransform.transform.position.x + 1, tileTransform.transform.position.y, tileTransform.transform.position.z)));
                         CheckWin();
+                        return true;
+                    }
+                    else if (filterTiles[tileDesiredPos].color == "black")
+                    {
+                        //Update the tile's position in the scene
+                        gameState.playMoveSound();
+                        //Remove the player from the previous position
+                        gameGridTransforms[currentPlayerPos] = null;
+                        //Put the tile in it's desired position
+                        gameGridTiles[desiredPos] = null;
+                        gameGridTransforms[tileDesiredPos] = tileTransform;
+                        gameGridTiles[tileDesiredPos] = tile;
+                        //Put the player in the desired position
+                        gameGridTransforms[desiredPos] = playerBall;
+                        //Update the GameGridTile Array to match the transform array
+
+                        StartCoroutine(MoveTileToPos(tileTransform, new Vector3(tileTransform.transform.position.x + 1, tileTransform.transform.position.y, tileTransform.transform.position.z)));
+                        //Check if the tiles are touching tiles of the same color
+                        StartCoroutine(gameState.DeathByTileFall(tile.GetComponent<Animator>()));
                         return true;
                     }
                 }
@@ -342,6 +379,18 @@ public class GameGrid : MonoBehaviour
                         CheckWin();
                         return true;
                     }
+                    else if (filterTiles[tileDesiredPos].color == "black")
+                    {
+                        gameState.playMoveSound();
+                        gameGridTransforms[currentPlayerPos] = null;
+                        gameGridTiles[desiredPos] = null;
+                        gameGridTransforms[tileDesiredPos] = tileTransform;
+                        gameGridTiles[tileDesiredPos] = tile;
+                        gameGridTransforms[desiredPos] = playerBall;
+                        StartCoroutine(MoveTileToPos(tileTransform, new Vector3(tileTransform.transform.position.x, tileTransform.transform.position.y, tileTransform.transform.position.z + 1)));
+                        StartCoroutine(gameState.DeathByTileFall(tile.GetComponent<Animator>()));
+                        return true;
+                    }
                 }
             }
         }
@@ -385,6 +434,18 @@ public class GameGrid : MonoBehaviour
                         gameGridTransforms[desiredPos] = playerBall;
                         StartCoroutine(MoveTileToPos(tileTransform, new Vector3(tileTransform.transform.position.x, tileTransform.transform.position.y, tileTransform.transform.position.z - 1)));
                         CheckWin();
+                        return true;
+                    }
+                    else if (filterTiles[tileDesiredPos].color == "black")
+                    {
+                        gameState.playMoveSound();
+                        gameGridTransforms[currentPlayerPos] = null;
+                        gameGridTiles[desiredPos] = null;
+                        gameGridTransforms[tileDesiredPos] = tileTransform;
+                        gameGridTiles[tileDesiredPos] = tile;
+                        gameGridTransforms[desiredPos] = playerBall;
+                        StartCoroutine(MoveTileToPos(tileTransform, new Vector3(tileTransform.transform.position.x, tileTransform.transform.position.y, tileTransform.transform.position.z - 1)));
+                        StartCoroutine(gameState.DeathByTileFall(tile.GetComponent<Animator>()));
                         return true;
                     }
                 }

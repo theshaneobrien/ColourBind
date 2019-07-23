@@ -90,14 +90,14 @@ public class GameState : MonoBehaviour
 
     public IEnumerator Death()
     {
-        if (currentLives >= 0)
+        if (currentLives > 0)
         {
             //Play Death Sound and Animation
             UpDateLives(-1);
             audioSource.PlayOneShot(death);
             playerAnim.Play("teleportOut");
             levelSpawner.gameGrid.AnimateTileDeath();
-            yield return new WaitForSeconds(death.length);
+            yield return new WaitForSeconds(death.length + 0.90f);
             levelSpawner.ReloadLevel();
         }
         else
@@ -108,7 +108,33 @@ public class GameState : MonoBehaviour
             gameOverText.gameObject.SetActive(true);
             gameOverText.gameObject.GetComponent<Animator>().Play("gameOver");
             audioSource.PlayOneShot(gameOver);
-            yield return new WaitForSeconds(gameOver.length);
+            playerAnim.Play("teleportOut");
+            levelSpawner.gameGrid.AnimateTileDeath();
+            yield return new WaitForSeconds(gameOver.length + 0.90f);
+            SceneManager.LoadScene("MainMenu");
+        }
+    }
+
+    public IEnumerator DeathByTileFall(Animator tileAnimator)
+    {
+        if (currentLives >= 0)
+        {
+            //Play Death Sound and Animation
+            UpDateLives(-1);
+            audioSource.PlayOneShot(death);
+            tileAnimator.Play("tileFall");
+            yield return new WaitForSeconds(death.length + 0.90f);
+            levelSpawner.ReloadLevel();
+        }
+        else
+        {
+            //GameOver
+            //Fade in GameOver Text!
+            //Load back to the Main Menu
+            gameOverText.gameObject.SetActive(true);
+            gameOverText.gameObject.GetComponent<Animator>().Play("gameOver");
+            audioSource.PlayOneShot(gameOver);
+            yield return new WaitForSeconds(gameOver.length + 0.90f);
             SceneManager.LoadScene("MainMenu");
         }
     }
