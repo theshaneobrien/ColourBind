@@ -35,6 +35,8 @@ public class GameState : MonoBehaviour
 
     private BallMovement playerBall;
     private Animator playerAnim;
+
+    private bool gamePaused;
     
     void Update()
     {
@@ -43,11 +45,16 @@ public class GameState : MonoBehaviour
         {
             StartCoroutine(Death());
         }
+
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            gamePaused = !gamePaused;
+        }
     }
 
     private void CountDownTimer()
     {
-        if (playerStarted)
+        if (playerStarted && !gamePaused)
         {
             //Weird time multiplier to make it the same speed as the  C64 version
             currentLevelTime -= Time.deltaTime * 1.735f;
@@ -62,13 +69,13 @@ public class GameState : MonoBehaviour
                     audioSource.PlayOneShot(hurryUp);
                     trackedWarningTime = 0.0f;
 
-                    if (timeText.color == Color.red)
+                    if (timeText.color == new Color(0.749f, 0.749f, 0.749f))
                     {
-                        timeText.color = Color.white;
+                        timeText.color = new Color(0.3098f, 0.16078f, 0.117647f);
                     }
                     else
                     {
-                        timeText.color = Color.red;
+                        timeText.color = new Color(0.749f, 0.749f, 0.749f);
                     }
                 }
             }
@@ -98,19 +105,25 @@ public class GameState : MonoBehaviour
 
     public IEnumerator SetUpGameState(LevelSpawner lSpawner, int levelTime, string levelName, BallMovement playerB)
     {
+        playerBall = playerB;
+        gamePaused = true;
+        playerBall.gamePaused = true;
         playerStarted = false;
+        timeText.color = new Color(0.749f, 0.749f, 0.749f);
         levelSpawner = lSpawner;
         currentLevelTime = levelTime;
         currentLevel = levelName;
         timeText.text = levelTime.ToString("0000");
         livesText.text = currentLives.ToString("00");
         //Play Teleport In Animation + Sound
-        playerBall = playerB;
         playerAnim = playerBall.GetComponent<Animator>();
         audioSource.PlayOneShot(teleportIn);
         playerAnim.Play("teleportIn");
+        
         yield return new WaitForSeconds(teleportIn.length);
         playerStarted = true;
+        gamePaused = false;
+        playerBall.gamePaused = false;
     }
 
     public void SetUpFinalTally()
@@ -122,7 +135,7 @@ public class GameState : MonoBehaviour
 
     public IEnumerator CountScore()
     {
-        for (int i = finishedTime; i > -1; i--)
+        for (int i = finishedTime; i > 0; i--)
         {
             currentScore++;
             currentLevelTime--;
@@ -135,6 +148,7 @@ public class GameState : MonoBehaviour
         //Teleport
         audioSource.PlayOneShot(teleportOut);
         playerAnim.Play("teleportOut");
+        levelSpawner.gameGrid.AnimateTileTeleport();
         yield return new WaitForSeconds(teleportOut.length);
         levelSpawner.LoadNextLevel();
     }

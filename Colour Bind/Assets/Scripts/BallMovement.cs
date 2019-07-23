@@ -9,6 +9,7 @@ public class BallMovement : MonoBehaviour
     private Vector3 fp;   //First touch position
     private Vector3 lp;   //Last touch position
     private float dragDistance;  //minimum distance for a swipe to be registered
+    public bool gamePaused = false;
 
     private bool playerIsMoving = false;
     public void SetGameGrid(GameGrid grid)
@@ -26,7 +27,15 @@ public class BallMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        PlayerInputs();
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            gamePaused = !gamePaused;
+        }
+
+        if (!gamePaused)
+        {
+            PlayerInputs();
+        }
     }
 
     public void PlayerInputs()
@@ -167,7 +176,7 @@ public class BallMovement : MonoBehaviour
 
         while (Vector3.Distance(ball.transform.position, desiredPos) > 0.01f)
         {
-            float distCovered = (Time.time - startTime) * 1.5f;
+            float distCovered = (Time.time - startTime) * 4f;
             float fracJourney = distCovered / journeyLength;
             ball.transform.position = Vector3.Lerp(ball.transform.position, desiredPos, fracJourney);
             //Add rotation

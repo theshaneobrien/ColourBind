@@ -82,6 +82,7 @@ public class LevelSpawner : MonoBehaviour
             SpawnLevel(currentLevel);
             SpawnGameGridTiles(currentLevel);
             StartCoroutine(gameState.SetUpGameState(this, currentLevel.levelTime, currentLevel.levelName, playerBall));
+            PlayerPrefs.SetInt("currentLevel", levels.IndexOf(currentLevel));
         }
     }
 

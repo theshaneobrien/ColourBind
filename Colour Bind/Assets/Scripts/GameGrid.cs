@@ -39,6 +39,12 @@ public class GameGrid : MonoBehaviour
     {
         playerBall = player;
         gameGridTransforms[position] = player;
+        filterTiles[position].GetComponent<Animator>().Play("floorTeleport");
+    }
+
+    public void AnimateTileTeleport()
+    {
+        filterTiles[gameGridTransforms.IndexOf(playerBall)].GetComponent<Animator>().Play("floorTeleport");
     }
 
     public void AddTileToGrid(Tile tile, int position)
@@ -391,7 +397,7 @@ public class GameGrid : MonoBehaviour
         journeyLength = Vector3.Distance(tileToMove.transform.position, desiredPos);
         while (Vector3.Distance(tileToMove.transform.position, desiredPos) > 0.01f)
         {
-            float distCovered = (Time.time - startTime) * 1.5f;
+            float distCovered = (Time.time - startTime) * 4f;
             float fracJourney = distCovered / journeyLength;
             tileToMove.transform.position = Vector3.Lerp(tileToMove.transform.position, desiredPos, fracJourney);
             yield return null;
