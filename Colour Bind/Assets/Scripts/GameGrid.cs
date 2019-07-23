@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -23,6 +24,8 @@ public class GameGrid : MonoBehaviour
 
     [SerializeField]
     private LevelSpawner levelSpawner;
+    [SerializeField]
+    private GameState gameState;
 
     private Transform playerBall;
 
@@ -179,8 +182,8 @@ public class GameGrid : MonoBehaviour
             blueCheckedTiles.Count == blueTiles.Count &&
             yellowCheckedTiles.Count == yellowTiles.Count)
         {
-            Debug.Log("You Win");
-            levelSpawner.LoadNextLevel();
+            gameState.SetUpFinalTally();
+            StartCoroutine(gameState.CountScore());
         }
     }
 
@@ -195,12 +198,17 @@ public class GameGrid : MonoBehaviour
         if (desiredPos >= 0)
         {
             //Check if the desired position in the array is free, and within the bounds
-            if (gameGridTransforms[desiredPos] == null && desiredPos >= 0 && desiredPos < 100 && filterTiles[desiredPos].tag != "blackHole")
+            if (gameGridTransforms[desiredPos] == null && desiredPos >= 0 && desiredPos < 100)
             {
                 //Remove player from the position they were in
                 gameGridTransforms[currentPlayerPos] = null;
                 //Put the player in the position they want to be in
                 gameGridTransforms[desiredPos] = playerBall;
+
+                if(filterTiles[desiredPos].tag == "blackHole")
+                {
+                   StartCoroutine(gameState.Death());
+                }
                 return true;
             }
             //If the desired position has a moveable tile, we move the player and the tile
@@ -220,7 +228,8 @@ public class GameGrid : MonoBehaviour
                     if (filterTiles[tileDesiredPos].color == "white" || filterTiles[tileDesiredPos].color == tile.color)
                     {
                         //Update the tile's position in the scene
-                        tileTransform.transform.position = new Vector3(tileTransform.transform.position.x - 1, tileTransform.transform.position.y, tileTransform.transform.position.z);
+                        gameState.playMoveSound();
+                        StartCoroutine(MoveTileToPos(tileTransform, new Vector3(tileTransform.transform.position.x - 1, tileTransform.transform.position.y, tileTransform.transform.position.z)));
                         //Remove the player from the previous position
                         gameGridTransforms[currentPlayerPos] = null;
                         //Put the tile in it's desired position
@@ -245,12 +254,17 @@ public class GameGrid : MonoBehaviour
         int currentPlayerPos = gameGridTransforms.IndexOf(playerBall);
         int desiredPos = currentPlayerPos + playerMovement;
 
-        if (desiredPos < 100 && filterTiles[desiredPos].tag != "blackHole")
+        if (desiredPos < 100)
         {
             if (gameGridTransforms[desiredPos] == null)
             {
                 gameGridTransforms[currentPlayerPos] = null;
                 gameGridTransforms[desiredPos] = playerBall;
+
+                if (filterTiles[desiredPos].tag == "blackHole")
+                {
+                    StartCoroutine(gameState.Death());
+                }
                 return true;
             }
             else if(gameGridTransforms[desiredPos].tag == "moveableTile")
@@ -263,7 +277,8 @@ public class GameGrid : MonoBehaviour
                 {
                     if (filterTiles[tileDesiredPos].color == "white" || filterTiles[tileDesiredPos].color == tile.color)
                     {
-                        tileTransform.transform.position = new Vector3(tileTransform.transform.position.x + 1, tileTransform.transform.position.y, tileTransform.transform.position.z);
+                        gameState.playMoveSound();
+                        StartCoroutine(MoveTileToPos(tileTransform, new Vector3(tileTransform.transform.position.x + 1, tileTransform.transform.position.y, tileTransform.transform.position.z)));
                         gameGridTransforms[currentPlayerPos] = null;
                         gameGridTiles[desiredPos] = null;
                         gameGridTransforms[tileDesiredPos] = tileTransform;
@@ -282,12 +297,17 @@ public class GameGrid : MonoBehaviour
     {
         int currentPlayerPos = gameGridTransforms.IndexOf(playerBall);
         int desiredPos = currentPlayerPos + playerMovement;
-        if (currentPlayerPos % 10 != 9 && filterTiles[desiredPos].color != "black")
+        if (currentPlayerPos % 10 != 9)
         {
             if (gameGridTransforms[desiredPos] == null)
             {
                 gameGridTransforms[currentPlayerPos] = null;
                 gameGridTransforms[desiredPos] = playerBall;
+
+                if (filterTiles[desiredPos].tag == "blackHole")
+                {
+                    StartCoroutine(gameState.Death());
+                }
                 return true;
             }
             else if (gameGridTransforms[desiredPos].tag == "moveableTile")
@@ -301,7 +321,8 @@ public class GameGrid : MonoBehaviour
                 {
                     if (filterTiles[tileDesiredPos].color == "white" || filterTiles[tileDesiredPos].color == tile.color)
                     {
-                        tileTransform.transform.position = new Vector3(tileTransform.transform.position.x, tileTransform.transform.position.y, tileTransform.transform.position.z + 1);
+                        gameState.playMoveSound();
+                        StartCoroutine(MoveTileToPos(tileTransform, new Vector3(tileTransform.transform.position.x, tileTransform.transform.position.y, tileTransform.transform.position.z + 1)));
                         gameGridTransforms[currentPlayerPos] = null;
                         gameGridTiles[desiredPos] = null;
                         gameGridTransforms[tileDesiredPos] = tileTransform;
@@ -320,12 +341,17 @@ public class GameGrid : MonoBehaviour
     {
         int currentPlayerPos = gameGridTransforms.IndexOf(playerBall);
         int desiredPos = currentPlayerPos + playerMovement;
-        if (currentPlayerPos % 10 != 0 && filterTiles[desiredPos].color != "black")
+        if (currentPlayerPos % 10 != 0)
         {
             if (gameGridTransforms[desiredPos] == null)
             {
                 gameGridTransforms[currentPlayerPos] = null;
                 gameGridTransforms[desiredPos] = playerBall;
+
+                if (filterTiles[desiredPos].tag == "blackHole")
+                {
+                    StartCoroutine(gameState.Death());
+                }
                 return true;
             }
             else if (gameGridTransforms[desiredPos].tag == "moveableTile")
@@ -339,7 +365,9 @@ public class GameGrid : MonoBehaviour
                 {
                     if (filterTiles[tileDesiredPos].color == "white" || filterTiles[tileDesiredPos].color == tile.color)
                     {
-                        tileTransform.transform.position = new Vector3(tileTransform.transform.position.x, tileTransform.transform.position.y, tileTransform.transform.position.z - 1);
+                        gameState.playMoveSound();
+                        //tileTransform.transform.position = new Vector3(tileTransform.transform.position.x, tileTransform.transform.position.y, tileTransform.transform.position.z - 1);
+                        StartCoroutine(MoveTileToPos(tileTransform, new Vector3(tileTransform.transform.position.x, tileTransform.transform.position.y, tileTransform.transform.position.z - 1)));
                         gameGridTransforms[currentPlayerPos] = null;
                         gameGridTiles[desiredPos] = null;
                         gameGridTransforms[tileDesiredPos] = tileTransform;
@@ -354,7 +382,16 @@ public class GameGrid : MonoBehaviour
         return false;
     }
 
-    public void CleanUpLevel()
+    private IEnumerator MoveTileToPos(Transform tileToMove, Vector3 desiredPos)
+    {
+        while (Vector3.Distance(tileToMove.transform.position, desiredPos) > 0f)
+        {
+            tileToMove.transform.position = Vector3.MoveTowards(tileToMove.transform.position, desiredPos, 0.1f);
+            yield return null;
+        }
+    }
+
+        public void CleanUpLevel()
     {
         //remove all tiles, reset all arrays
         for (int i = 0; i < gameGridTiles.Count; i++)

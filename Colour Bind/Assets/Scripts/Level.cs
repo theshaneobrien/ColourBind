@@ -9,7 +9,7 @@ public class Level : ScriptableObject
 {
     public string levelName;
     public string levelAuthor;
-    public string levelTime;
+    public int levelTime;
     public List<int> gameGridTileIds;
     public List<int> filterTileIds;
     public int playerPos;

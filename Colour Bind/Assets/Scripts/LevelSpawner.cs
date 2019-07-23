@@ -10,6 +10,7 @@ public class LevelSpawner : MonoBehaviour
     public GameObject player;
 
     public GameGrid gameGrid;
+    public GameState gameState;
 
     public Level currentLevel;
     public List<Level> levels;
@@ -19,6 +20,7 @@ public class LevelSpawner : MonoBehaviour
     {
         SpawnLevel(levels[0]);
         SpawnGameGridTiles(levels[0]);
+        StartCoroutine(gameState.SetUpGameState(this, levels[0].levelTime, levels[0].levelName));
     }
 
     public void SpawnLevel(Level levelToSpawn)
@@ -78,6 +80,16 @@ public class LevelSpawner : MonoBehaviour
             gameGrid.CleanUpLevel();
             SpawnLevel(currentLevel);
             SpawnGameGridTiles(currentLevel);
+            gameState.SetUpGameState(this, currentLevel.levelTime, currentLevel.levelName);
+            StartCoroutine(gameState.SetUpGameState(this, currentLevel.levelTime, currentLevel.levelName));
         }
+    }
+
+    public void ReloadLevel()
+    {
+        gameGrid.CleanUpLevel();
+        SpawnLevel(currentLevel);
+        SpawnGameGridTiles(currentLevel);
+        StartCoroutine(gameState.SetUpGameState(this, currentLevel.levelTime, currentLevel.levelName));
     }
 }
