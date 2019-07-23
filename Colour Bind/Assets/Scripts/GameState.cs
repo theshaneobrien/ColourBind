@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameState : MonoBehaviour
@@ -22,6 +23,7 @@ public class GameState : MonoBehaviour
     public Text livesText;
     public Text timeText;
     public Text levelText;
+    public Text gameOverText;
 
     public bool playerStarted = false;
     public AudioSource audioSource;
@@ -88,12 +90,26 @@ public class GameState : MonoBehaviour
 
     public IEnumerator Death()
     {
-        UpDateLives(-1);
-        //Play Death Sound and Animation
-        audioSource.PlayOneShot(death);
-        playerAnim.Play("teleportOut");
-        yield return new WaitForSeconds(death.length);
-        levelSpawner.ReloadLevel();
+        if (currentLives >= 0)
+        {
+            //Play Death Sound and Animation
+            UpDateLives(-1);
+            audioSource.PlayOneShot(death);
+            playerAnim.Play("teleportOut");
+            yield return new WaitForSeconds(death.length);
+            levelSpawner.ReloadLevel();
+        }
+        else
+        {
+            //GameOver
+            //Fade in GameOver Text!
+            //Load back to the Main Menu
+            gameOverText.gameObject.SetActive(true);
+            gameOverText.gameObject.GetComponent<Animator>().Play("gameOver");
+            audioSource.PlayOneShot(gameOver);
+            yield return new WaitForSeconds(gameOver.length);
+            SceneManager.LoadScene("MainMenu");
+        }
     }
 
     private void UpDateLives(int lifeChange)
@@ -129,6 +145,8 @@ public class GameState : MonoBehaviour
     public void SetUpFinalTally()
     {
         playerStarted = false;
+        gamePaused = true;
+        playerBall.gamePaused = true;
         previousScore = currentScore;
         finishedTime = (int)currentLevelTime;
     }
