@@ -19,9 +19,20 @@ public class LevelSpawner : MonoBehaviour
 
     public void Awake()
     {
-        SpawnLevel(levels[0]);
-        SpawnGameGridTiles(levels[0]);
-        StartCoroutine(gameState.SetUpGameState(this, levels[0].levelTime, levels[0].levelName, playerBall));
+        int resume = PlayerPrefs.GetInt("resume", 0);
+        if (resume == 1)
+        {
+            SpawnLevel(levels[resume]);
+            SpawnGameGridTiles(levels[resume]);
+            StartCoroutine(gameState.SetUpGameState(this, levels[resume].levelTime, levels[resume].levelName, playerBall));
+        }
+        else
+        {
+            SpawnLevel(levels[0]);
+            SpawnGameGridTiles(levels[0]);
+            StartCoroutine(gameState.SetUpGameState(this, levels[0].levelTime, levels[0].levelName, playerBall));
+        }
+        
     }
 
     public void SpawnLevel(Level levelToSpawn)
@@ -78,11 +89,12 @@ public class LevelSpawner : MonoBehaviour
         if (levels.IndexOf(currentLevel) != levels.Count - 1)
         {
             currentLevel = levels[levels.IndexOf(currentLevel) + 1];
+
+            PlayerPrefs.SetInt("currentLevel", levels.IndexOf(currentLevel));
             gameGrid.CleanUpLevel();
             SpawnLevel(currentLevel);
             SpawnGameGridTiles(currentLevel);
             StartCoroutine(gameState.SetUpGameState(this, currentLevel.levelTime, currentLevel.levelName, playerBall));
-            PlayerPrefs.SetInt("currentLevel", levels.IndexOf(currentLevel));
         }
     }
 
