@@ -9,6 +9,8 @@ public class BallMovement : MonoBehaviour
     private Vector3 fp;   //First touch position
     private Vector3 lp;   //Last touch position
     private float dragDistance;  //minimum distance for a swipe to be registered
+
+    private bool playerIsMoving = false;
     public void SetGameGrid(GameGrid grid)
     {
         gameGrid = grid;
@@ -29,9 +31,12 @@ public class BallMovement : MonoBehaviour
 
     public void PlayerInputs()
     {
-        //TODO: Detect what platform we are on...
-        KeyControls(); 
-        //TouchControls();
+        if (!playerIsMoving)
+        {
+            //TODO: Detect what platform we are on...
+            //KeyControls();
+            TouchControls();
+        }
     }
 
     public void TouchControls()
@@ -96,22 +101,19 @@ public class BallMovement : MonoBehaviour
 
     public void KeyControls()
     {
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        if (Input.GetKey(KeyCode.LeftArrow))
         {
             MoveLeft();
         }
-
-        if (Input.GetKeyDown(KeyCode.RightArrow))
+        else if (Input.GetKey(KeyCode.RightArrow))
         {
             MoveRight();
         }
-
-        if (Input.GetKeyDown(KeyCode.UpArrow))
+        else if (Input.GetKey(KeyCode.UpArrow))
         {
             MoveUp();
         }
-
-        if (Input.GetKeyDown(KeyCode.DownArrow))
+        else if (Input.GetKey(KeyCode.DownArrow))
         {
             MoveDown();
         }
@@ -122,7 +124,7 @@ public class BallMovement : MonoBehaviour
         //TODO:Check if we can move in the desired direction
         if (gameGrid.ValidateLeftMovement(-10))
         {
-            StartCoroutine(MoveTileToPos(transform, new Vector3(transform.position.x - 1, transform.position.y, transform.position.z)));
+            StartCoroutine(MoveBallPos(transform, new Vector3(transform.position.x - 1, transform.position.y, transform.position.z)));
         }
     }
 
@@ -131,7 +133,7 @@ public class BallMovement : MonoBehaviour
         if (gameGrid.ValidateRightMovement(10))
         {
             //TODO:Check if we can move in the desired direction
-            StartCoroutine(MoveTileToPos(transform, new Vector3(transform.position.x + 1, transform.position.y, transform.position.z)));
+            StartCoroutine(MoveBallPos(transform, new Vector3(transform.position.x + 1, transform.position.y, transform.position.z)));
         }
     }
 
@@ -140,7 +142,7 @@ public class BallMovement : MonoBehaviour
         if (gameGrid.ValidateUpMovement(1))
         {
             //TODO:Check if we can move in the desired direction
-            StartCoroutine(MoveTileToPos(transform, new Vector3(transform.position.x, transform.position.y, transform.position.z + 1)));
+            StartCoroutine(MoveBallPos(transform, new Vector3(transform.position.x, transform.position.y, transform.position.z + 1)));
         }
     }
 
@@ -149,16 +151,19 @@ public class BallMovement : MonoBehaviour
         if (gameGrid.ValidateDownMovement(-1))
         {
             //TODO:Check if we can move in the desired direction
-            StartCoroutine(MoveTileToPos(transform, new Vector3(transform.position.x, transform.position.y, transform.position.z - 1)));
+            StartCoroutine(MoveBallPos(transform, new Vector3(transform.position.x, transform.position.y, transform.position.z - 1)));
         }
     }
-    private IEnumerator MoveTileToPos(Transform tileToMove, Vector3 desiredPos)
+    private IEnumerator MoveBallPos(Transform ball, Vector3 desiredPos)
     {
-        while (Vector3.Distance(tileToMove.transform.position, desiredPos) > 0f)
+        playerIsMoving = true;
+        while (Vector3.Distance(ball.transform.position, desiredPos) > 0.01f)
         {
-            tileToMove.transform.position = Vector3.MoveTowards(tileToMove.transform.position, desiredPos, 0.1f);
+            ball.transform.position = Vector3.Lerp(ball.transform.position, desiredPos, 0.2f);
             yield return null;
         }
+        ball.transform.position = desiredPos;
+        playerIsMoving = false;
     }
 
 }

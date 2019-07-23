@@ -29,16 +29,14 @@ public class GameState : MonoBehaviour
     public AudioClip death;
     public AudioClip gameOver;
     public AudioClip scoreCount;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
+    
     void Update()
     {
         CountDownTimer();
+        if (Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.Q))
+        {
+            StartCoroutine(Death());
+        }
     }
 
     private void CountDownTimer()
@@ -78,7 +76,6 @@ public class GameState : MonoBehaviour
         levelSpawner = lSpawner;
         currentLevelTime = levelTime;
         currentLevel = levelName;
-
         timeText.text = levelTime.ToString("0000");
         livesText.text = currentLives.ToString("00");
         //Play Teleport In Animation + Sound

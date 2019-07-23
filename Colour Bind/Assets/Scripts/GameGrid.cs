@@ -229,7 +229,6 @@ public class GameGrid : MonoBehaviour
                     {
                         //Update the tile's position in the scene
                         gameState.playMoveSound();
-                        StartCoroutine(MoveTileToPos(tileTransform, new Vector3(tileTransform.transform.position.x - 1, tileTransform.transform.position.y, tileTransform.transform.position.z)));
                         //Remove the player from the previous position
                         gameGridTransforms[currentPlayerPos] = null;
                         //Put the tile in it's desired position
@@ -240,6 +239,7 @@ public class GameGrid : MonoBehaviour
                         gameGridTransforms[desiredPos] = playerBall;
                         //Update the GameGridTile Array to match the transform array
 
+                        StartCoroutine(MoveTileToPos(tileTransform, new Vector3(tileTransform.transform.position.x - 1, tileTransform.transform.position.y, tileTransform.transform.position.z)));
                         //Check if the tiles are touching tiles of the same color
                         CheckWin();
                         return true;
@@ -278,12 +278,12 @@ public class GameGrid : MonoBehaviour
                     if (filterTiles[tileDesiredPos].color == "white" || filterTiles[tileDesiredPos].color == tile.color)
                     {
                         gameState.playMoveSound();
-                        StartCoroutine(MoveTileToPos(tileTransform, new Vector3(tileTransform.transform.position.x + 1, tileTransform.transform.position.y, tileTransform.transform.position.z)));
                         gameGridTransforms[currentPlayerPos] = null;
                         gameGridTiles[desiredPos] = null;
                         gameGridTransforms[tileDesiredPos] = tileTransform;
                         gameGridTiles[tileDesiredPos] = tile;
                         gameGridTransforms[desiredPos] = playerBall;
+                        StartCoroutine(MoveTileToPos(tileTransform, new Vector3(tileTransform.transform.position.x + 1, tileTransform.transform.position.y, tileTransform.transform.position.z)));
                         CheckWin();
                         return true;
                     }
@@ -322,12 +322,12 @@ public class GameGrid : MonoBehaviour
                     if (filterTiles[tileDesiredPos].color == "white" || filterTiles[tileDesiredPos].color == tile.color)
                     {
                         gameState.playMoveSound();
-                        StartCoroutine(MoveTileToPos(tileTransform, new Vector3(tileTransform.transform.position.x, tileTransform.transform.position.y, tileTransform.transform.position.z + 1)));
                         gameGridTransforms[currentPlayerPos] = null;
                         gameGridTiles[desiredPos] = null;
                         gameGridTransforms[tileDesiredPos] = tileTransform;
                         gameGridTiles[tileDesiredPos] = tile;
                         gameGridTransforms[desiredPos] = playerBall;
+                        StartCoroutine(MoveTileToPos(tileTransform, new Vector3(tileTransform.transform.position.x, tileTransform.transform.position.y, tileTransform.transform.position.z + 1)));
                         CheckWin();
                         return true;
                     }
@@ -367,12 +367,12 @@ public class GameGrid : MonoBehaviour
                     {
                         gameState.playMoveSound();
                         //tileTransform.transform.position = new Vector3(tileTransform.transform.position.x, tileTransform.transform.position.y, tileTransform.transform.position.z - 1);
-                        StartCoroutine(MoveTileToPos(tileTransform, new Vector3(tileTransform.transform.position.x, tileTransform.transform.position.y, tileTransform.transform.position.z - 1)));
                         gameGridTransforms[currentPlayerPos] = null;
                         gameGridTiles[desiredPos] = null;
                         gameGridTransforms[tileDesiredPos] = tileTransform;
                         gameGridTiles[tileDesiredPos] = tile;
                         gameGridTransforms[desiredPos] = playerBall;
+                        StartCoroutine(MoveTileToPos(tileTransform, new Vector3(tileTransform.transform.position.x, tileTransform.transform.position.y, tileTransform.transform.position.z - 1)));
                         CheckWin();
                         return true;
                     }
@@ -384,11 +384,12 @@ public class GameGrid : MonoBehaviour
 
     private IEnumerator MoveTileToPos(Transform tileToMove, Vector3 desiredPos)
     {
-        while (Vector3.Distance(tileToMove.transform.position, desiredPos) > 0f)
+        while (Vector3.Distance(tileToMove.transform.position, desiredPos) > 0.01f)
         {
-            tileToMove.transform.position = Vector3.MoveTowards(tileToMove.transform.position, desiredPos, 0.1f);
+            tileToMove.transform.position = Vector3.Lerp(tileToMove.transform.position, desiredPos, 0.2f);
             yield return null;
         }
+        tileToMove.transform.position = desiredPos;
     }
 
         public void CleanUpLevel()
