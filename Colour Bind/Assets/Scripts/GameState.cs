@@ -9,11 +9,14 @@ public class GameState : MonoBehaviour
 
     private int currentScore = 0;
     private int currentLives = 2;
-    private float currentLevelTime = 0;
+    private float currentLevelTime = 0.0f;
     private string currentLevel = "";
 
     private int previousScore;
     private int finishedTime;
+
+    private float warningInterval = 1.0f;
+    private float trackedWarningTime = 0.0f;
 
     public Text scoreText;
     public Text livesText;
@@ -29,6 +32,9 @@ public class GameState : MonoBehaviour
     public AudioClip death;
     public AudioClip gameOver;
     public AudioClip scoreCount;
+
+    private BallMovement playerBall;
+    private Animator playerAnim;
     
     void Update()
     {
@@ -47,6 +53,25 @@ public class GameState : MonoBehaviour
             currentLevelTime -= Time.deltaTime * 1.735f;
 
             timeText.text = currentLevelTime.ToString("0000");
+            if(currentLevelTime <= 60)
+            {
+                trackedWarningTime += Time.deltaTime * 1.735f;
+
+                if (trackedWarningTime >= warningInterval)
+                {
+                    audioSource.PlayOneShot(hurryUp);
+                    trackedWarningTime = 0.0f;
+
+                    if (timeText.color == Color.red)
+                    {
+                        timeText.color = Color.white;
+                    }
+                    else
+                    {
+                        timeText.color = Color.red;
+                    }
+                }
+            }
             if (currentLevelTime <= 0)
             {
                 StartCoroutine(Death());
@@ -59,6 +84,7 @@ public class GameState : MonoBehaviour
         UpDateLives(-1);
         //Play Death Sound and Animation
         audioSource.PlayOneShot(death);
+        playerAnim.Play("teleportOut");
         yield return new WaitForSeconds(death.length);
         levelSpawner.ReloadLevel();
     }
@@ -70,7 +96,7 @@ public class GameState : MonoBehaviour
         playerStarted = false;
     }
 
-    public IEnumerator SetUpGameState(LevelSpawner lSpawner, int levelTime, string levelName)
+    public IEnumerator SetUpGameState(LevelSpawner lSpawner, int levelTime, string levelName, BallMovement playerB)
     {
         playerStarted = false;
         levelSpawner = lSpawner;
@@ -79,7 +105,10 @@ public class GameState : MonoBehaviour
         timeText.text = levelTime.ToString("0000");
         livesText.text = currentLives.ToString("00");
         //Play Teleport In Animation + Sound
+        playerBall = playerB;
+        playerAnim = playerBall.GetComponent<Animator>();
         audioSource.PlayOneShot(teleportIn);
+        playerAnim.Play("teleportIn");
         yield return new WaitForSeconds(teleportIn.length);
         playerStarted = true;
     }
@@ -105,6 +134,7 @@ public class GameState : MonoBehaviour
 
         //Teleport
         audioSource.PlayOneShot(teleportOut);
+        playerAnim.Play("teleportOut");
         yield return new WaitForSeconds(teleportOut.length);
         levelSpawner.LoadNextLevel();
     }

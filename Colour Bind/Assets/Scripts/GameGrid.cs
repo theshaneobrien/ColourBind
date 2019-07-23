@@ -384,9 +384,16 @@ public class GameGrid : MonoBehaviour
 
     private IEnumerator MoveTileToPos(Transform tileToMove, Vector3 desiredPos)
     {
+        float startTime = Time.time;
+
+        float journeyLength;
+
+        journeyLength = Vector3.Distance(tileToMove.transform.position, desiredPos);
         while (Vector3.Distance(tileToMove.transform.position, desiredPos) > 0.01f)
         {
-            tileToMove.transform.position = Vector3.Lerp(tileToMove.transform.position, desiredPos, 0.2f);
+            float distCovered = (Time.time - startTime) * 1.5f;
+            float fracJourney = distCovered / journeyLength;
+            tileToMove.transform.position = Vector3.Lerp(tileToMove.transform.position, desiredPos, fracJourney);
             yield return null;
         }
         tileToMove.transform.position = desiredPos;

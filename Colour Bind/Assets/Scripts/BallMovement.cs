@@ -34,8 +34,8 @@ public class BallMovement : MonoBehaviour
         if (!playerIsMoving)
         {
             //TODO: Detect what platform we are on...
-            //KeyControls();
-            TouchControls();
+            KeyControls();
+            //TouchControls();
         }
     }
 
@@ -157,9 +157,21 @@ public class BallMovement : MonoBehaviour
     private IEnumerator MoveBallPos(Transform ball, Vector3 desiredPos)
     {
         playerIsMoving = true;
+        float startTime = Time.time;
+
+        float journeyLength;
+
+        journeyLength = Vector3.Distance(ball.transform.position, desiredPos);
+
+        Vector3 heading = new Vector3(-ball.transform.position.z, ball.transform.position.y, ball.transform.position.x) - new Vector3(-desiredPos.z, desiredPos.y, desiredPos.x);
+
         while (Vector3.Distance(ball.transform.position, desiredPos) > 0.01f)
         {
-            ball.transform.position = Vector3.Lerp(ball.transform.position, desiredPos, 0.2f);
+            float distCovered = (Time.time - startTime) * 1.5f;
+            float fracJourney = distCovered / journeyLength;
+            ball.transform.position = Vector3.Lerp(ball.transform.position, desiredPos, fracJourney);
+            //Add rotation
+            ball.transform.Rotate(heading*3.6f, Space.World);
             yield return null;
         }
         ball.transform.position = desiredPos;

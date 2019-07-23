@@ -8,6 +8,7 @@ public class LevelSpawner : MonoBehaviour
     public GameObject[] gameGridTilePrefabs;
     public GameObject[] filterTilePrefabs;
     public GameObject player;
+    private BallMovement playerBall;
 
     public GameGrid gameGrid;
     public GameState gameState;
@@ -20,7 +21,7 @@ public class LevelSpawner : MonoBehaviour
     {
         SpawnLevel(levels[0]);
         SpawnGameGridTiles(levels[0]);
-        StartCoroutine(gameState.SetUpGameState(this, levels[0].levelTime, levels[0].levelName));
+        StartCoroutine(gameState.SetUpGameState(this, levels[0].levelTime, levels[0].levelName, playerBall));
     }
 
     public void SpawnLevel(Level levelToSpawn)
@@ -65,7 +66,7 @@ public class LevelSpawner : MonoBehaviour
             }
             if (i == levelToSpawn.playerPos)
             {
-                BallMovement playerBall = Instantiate(player, new Vector3(xPos, 1, yPos - 1), Quaternion.identity).GetComponent<BallMovement>();
+                playerBall = Instantiate(player, new Vector3(xPos, 1, yPos - 1), Quaternion.identity).GetComponent<BallMovement>();
                 playerBall.SetGameGrid(gameGrid);
                 gameGrid.AddPlayer(playerBall.transform, i);
             }
@@ -80,8 +81,7 @@ public class LevelSpawner : MonoBehaviour
             gameGrid.CleanUpLevel();
             SpawnLevel(currentLevel);
             SpawnGameGridTiles(currentLevel);
-            gameState.SetUpGameState(this, currentLevel.levelTime, currentLevel.levelName);
-            StartCoroutine(gameState.SetUpGameState(this, currentLevel.levelTime, currentLevel.levelName));
+            StartCoroutine(gameState.SetUpGameState(this, currentLevel.levelTime, currentLevel.levelName, playerBall));
         }
     }
 
@@ -90,6 +90,6 @@ public class LevelSpawner : MonoBehaviour
         gameGrid.CleanUpLevel();
         SpawnLevel(currentLevel);
         SpawnGameGridTiles(currentLevel);
-        StartCoroutine(gameState.SetUpGameState(this, currentLevel.levelTime, currentLevel.levelName));
+        StartCoroutine(gameState.SetUpGameState(this, currentLevel.levelTime, currentLevel.levelName,playerBall));
     }
 }
