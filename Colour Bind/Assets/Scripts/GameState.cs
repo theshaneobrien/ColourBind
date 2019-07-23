@@ -96,6 +96,7 @@ public class GameState : MonoBehaviour
             UpDateLives(-1);
             audioSource.PlayOneShot(death);
             playerAnim.Play("teleportOut");
+            levelSpawner.gameGrid.AnimateTileDeath();
             yield return new WaitForSeconds(death.length);
             levelSpawner.ReloadLevel();
         }

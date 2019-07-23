@@ -47,6 +47,11 @@ public class GameGrid : MonoBehaviour
         filterTiles[gameGridTransforms.IndexOf(playerBall)].GetComponent<Animator>().Play("floorTeleport");
     }
 
+    public void AnimateTileDeath()
+    {
+        filterTiles[gameGridTransforms.IndexOf(playerBall)].GetComponent<Animator>().Play("floorDeath");
+    }
+
     public void AddTileToGrid(Tile tile, int position)
     {
         if (tile != null)
