@@ -465,7 +465,7 @@ public class GameGrid : MonoBehaviour
         {
             float distCovered = (Time.time - startTime) * 4f;
             float fracJourney = distCovered / journeyLength;
-            tileToMove.transform.position = Vector3.Lerp(tileToMove.transform.position, desiredPos, fracJourney);
+            tileToMove.transform.position = Vector3.Lerp(tileToMove.transform.position, desiredPos, fracJourney * 40 * Time.deltaTime);
             yield return null;
         }
         tileToMove.transform.position = desiredPos;

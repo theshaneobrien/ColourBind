@@ -178,7 +178,7 @@ public class BallMovement : MonoBehaviour
         {
             float distCovered = (Time.time - startTime) * 4f;
             float fracJourney = distCovered / journeyLength;
-            ball.transform.position = Vector3.Lerp(ball.transform.position, desiredPos, fracJourney);
+            ball.transform.position = Vector3.Lerp(ball.transform.position, desiredPos, fracJourney * 40 * Time.deltaTime);
             //Add rotation
             ball.transform.Rotate(heading*3.6f, Space.World);
             yield return null;
