@@ -22,15 +22,18 @@ public class LevelSpawner : MonoBehaviour
         int resume = PlayerPrefs.GetInt("resume", 0);
         if (resume == 1)
         {
-            SpawnLevel(levels[resume]);
-            SpawnGameGridTiles(levels[resume]);
-            StartCoroutine(gameState.SetUpGameState(this, levels[resume].levelTime, levels[resume].levelName, playerBall));
+            Debug.Log("Resuming level: " + PlayerPrefs.GetInt("currentLevel", 0));
+            currentLevel = levels[PlayerPrefs.GetInt("currentLevel", 0)];
+            SpawnLevel(currentLevel);
+            SpawnGameGridTiles(currentLevel);
+            StartCoroutine(gameState.SetUpGameState(this, currentLevel.levelTime, currentLevel.levelName, playerBall));
         }
         else
         {
-            SpawnLevel(levels[0]);
-            SpawnGameGridTiles(levels[0]);
-            StartCoroutine(gameState.SetUpGameState(this, levels[0].levelTime, levels[0].levelName, playerBall));
+            currentLevel = levels[0];
+            SpawnLevel(currentLevel);
+            SpawnGameGridTiles(currentLevel);
+            StartCoroutine(gameState.SetUpGameState(this, currentLevel.levelTime, currentLevel.levelName, playerBall));
         }
         
     }
