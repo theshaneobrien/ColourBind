@@ -74,11 +74,11 @@ public class GameState : MonoBehaviour
                 BackToMainMenu();
             }
 
-            if (Input.GetKeyDown(KeyCode.P))
-            {
-                pauseButton.TogglePause();
-                gamePaused = !gamePaused;
-            }
+        }
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            pauseButton.TogglePause();
+            gamePaused = !gamePaused;
         }
     }
 
@@ -86,9 +86,16 @@ public class GameState : MonoBehaviour
     {
         if (playerStarted && !gamePaused)
         {
-            //Weird time multiplier to make it the same speed as the  C64 version
-            currentLevelTime -= Time.deltaTime * 1.735f;
-
+            if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer ||
+                  Application.platform == RuntimePlatform.WebGLPlayer || Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.LinuxPlayer)
+            {
+                //Weird time multiplier to make it the same speed as the  C64 version
+                currentLevelTime -= Time.deltaTime * 1.735f;
+            }
+            else
+            {
+                currentLevelTime -= Time.deltaTime * 1.2f;
+            }
             timeText.text = currentLevelTime.ToString("0000");
             if(currentLevelTime <= 60)
             {

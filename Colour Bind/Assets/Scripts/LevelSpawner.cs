@@ -41,9 +41,12 @@ public class LevelSpawner : MonoBehaviour
 
     public void Update()
     {
-        if (Input.GetKeyDown(KeyCode.RightBracket))
+        if (Application.platform == RuntimePlatform.WindowsEditor)
         {
-            LoadNextLevel();
+            if (Input.GetKeyDown(KeyCode.RightBracket))
+            {
+                LoadNextLevel();
+            }
         }
     }
 
