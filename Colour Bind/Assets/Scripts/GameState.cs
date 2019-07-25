@@ -64,9 +64,14 @@ public class GameState : MonoBehaviour
         CountDownTimer();
         if (!gamePaused)
         {
-            if (Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.Q))
+            if (Input.GetKeyDown(KeyCode.R))
             {
                 StartCoroutine(Death());
+            }
+
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                BackToMainMenu();
             }
 
             if (Input.GetKeyDown(KeyCode.P))
