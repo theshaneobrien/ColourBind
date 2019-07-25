@@ -38,6 +38,14 @@ public class LevelSpawner : MonoBehaviour
         
     }
 
+    public void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.RightBracket))
+        {
+            LoadNextLevel();
+        }
+    }
+
     public void SpawnLevel(Level levelToSpawn)
     {
         int xPos = -1;
@@ -80,7 +88,7 @@ public class LevelSpawner : MonoBehaviour
             }
             if (i == levelToSpawn.playerPos)
             {
-                playerBall = Instantiate(player, new Vector3(xPos, 1, yPos - 1), Quaternion.identity).GetComponent<BallMovement>();
+                playerBall = Instantiate(player, new Vector3(xPos, 1, yPos - 1), Quaternion.Euler(-25f, 45, 0)).GetComponent<BallMovement>();
                 playerBall.SetGameGrid(gameGrid);
                 gameGrid.AddPlayer(playerBall.transform, i);
             }

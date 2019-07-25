@@ -153,42 +153,54 @@ public class GameGrid : MonoBehaviour
         }
     }
 
-        private void CheckWin()
+    private void CheckWin()
     {
-        for (int i = 0; i < redCheckedTiles.Count; i++)
+        if (redTiles.Count > 0)
         {
-            redCheckedTiles[i].ResetChecks();
+            for (int i = 0; i < redCheckedTiles.Count; i++)
+            {
+                redCheckedTiles[i].ResetChecks();
+            }
+            redCheckedTiles.Clear();
+            CheckChain(redTiles[0], redTiles, redCheckedTiles);
         }
-        redCheckedTiles.Clear();
-        CheckChain(redTiles[0], redTiles, redCheckedTiles);
 
-        for (int i = 0; i < greenCheckedTiles.Count; i++)
+        if (greenTiles.Count > 0)
         {
-            greenCheckedTiles[i].ResetChecks();
+            for (int i = 0; i < greenCheckedTiles.Count; i++)
+            {
+                greenCheckedTiles[i].ResetChecks();
+            }
+            greenCheckedTiles.Clear();
+            CheckChain(greenTiles[0], greenTiles, greenCheckedTiles);
         }
-        greenCheckedTiles.Clear();
-        CheckChain(greenTiles[0], greenTiles, greenCheckedTiles);
 
-        for (int i = 0; i < blueCheckedTiles.Count; i++)
+        if (blueTiles.Count > 0)
         {
-            blueCheckedTiles[i].ResetChecks();
+            for (int i = 0; i < blueCheckedTiles.Count; i++)
+            {
+                blueCheckedTiles[i].ResetChecks();
+            }
+            blueCheckedTiles.Clear();
+            CheckChain(blueTiles[0], blueTiles, blueCheckedTiles);
         }
-        blueCheckedTiles.Clear();
-        CheckChain(blueTiles[0], blueTiles, blueCheckedTiles);
 
-        for (int i = 0; i < yellowCheckedTiles.Count; i++)
+        if (yellowTiles.Count > 0)
         {
-            yellowCheckedTiles[i].ResetChecks();
+            for (int i = 0; i < yellowCheckedTiles.Count; i++)
+            {
+                yellowCheckedTiles[i].ResetChecks();
+            }
+            yellowCheckedTiles.Clear();
+            CheckChain(yellowTiles[0], yellowTiles, yellowCheckedTiles);
         }
-        yellowCheckedTiles.Clear();
-        CheckChain(yellowTiles[0], yellowTiles, yellowCheckedTiles);
 
         Debug.Log("Got " + redCheckedTiles.Count + " red tiles");
         Debug.Log("Got " + greenCheckedTiles.Count + " green tiles");
         Debug.Log("Got " + blueCheckedTiles.Count + " blue tiles");
         Debug.Log("Got " + yellowCheckedTiles.Count + " yellow tiles");
 
-        if(redCheckedTiles.Count == redTiles.Count &&
+        if (redCheckedTiles.Count == redTiles.Count &&
             greenCheckedTiles.Count == greenTiles.Count &&
             blueCheckedTiles.Count == blueTiles.Count &&
             yellowCheckedTiles.Count == yellowTiles.Count)

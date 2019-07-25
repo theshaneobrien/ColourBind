@@ -6,8 +6,8 @@ public class BallMovement : MonoBehaviour
 {
     [SerializeField]
     private GameGrid gameGrid;
-    private Vector3 fp;   //First touch position
-    private Vector3 lp;   //Last touch position
+    private Vector3 firstTouchPos;   //First touch position
+    private Vector3 lastTouchPos;   //Last touch position
     private float dragDistance;  //minimum distance for a swipe to be registered
     public bool gamePaused = false;
 
@@ -21,7 +21,7 @@ public class BallMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        dragDistance = Screen.height * 5 / 100; //dragDistance is 15% height of the screen
     }
 
     // Update is called once per frame
@@ -42,9 +42,16 @@ public class BallMovement : MonoBehaviour
     {
         if (!playerIsMoving)
         {
+            if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer ||
+               Application.platform == RuntimePlatform.WebGLPlayer || Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.LinuxPlayer)
+            {
+                KeyControls();
+            }
+            else
+            {
+                TouchControls();
+            }
             //TODO: Detect what platform we are on...
-            KeyControls();
-            //TouchControls();
         }
     }
 
@@ -57,24 +64,24 @@ public class BallMovement : MonoBehaviour
                 Touch touch = Input.GetTouch(0); // get the touch
                 if (touch.phase == TouchPhase.Began) //check for the first touch
                 {
-                    fp = touch.position;
-                    lp = touch.position;
+                    firstTouchPos = touch.position;
+                    lastTouchPos = touch.position;
                 }
                 else if (touch.phase == TouchPhase.Moved) // update the last position based on where they moved
                 {
-                    lp = touch.position;
+                    lastTouchPos = touch.position;
                 }
                 else if (touch.phase == TouchPhase.Ended) //check if the finger is removed from the screen
                 {
-                    lp = touch.position;  //last touch position. Ommitted if you use list
+                    lastTouchPos = touch.position;  //last touch position. Ommitted if you use list
 
                     //Check if drag distance is greater than 20% of the screen height
-                    if (Mathf.Abs(lp.x - fp.x) > dragDistance || Mathf.Abs(lp.y - fp.y) > dragDistance)
+                    if (Mathf.Abs(lastTouchPos.x - firstTouchPos.x) > dragDistance || Mathf.Abs(lastTouchPos.y - firstTouchPos.y) > dragDistance)
                     {//It's a drag
                      //check if the drag is vertical or horizontal
-                        if (Mathf.Abs(lp.x - fp.x) > Mathf.Abs(lp.y - fp.y))
+                        if (Mathf.Abs(lastTouchPos.x - firstTouchPos.x) > Mathf.Abs(lastTouchPos.y - firstTouchPos.y))
                         {   //If the horizontal movement is greater than the vertical movement...
-                            if ((lp.x > fp.x))  //If the movement was to the right)
+                            if ((lastTouchPos.x > firstTouchPos.x))  //If the movement was to the right)
                             {   //Right swipe
                                 Debug.Log("Right Swipe");
                                 MoveRight();
@@ -87,7 +94,7 @@ public class BallMovement : MonoBehaviour
                         }
                         else
                         {   //the vertical movement is greater than the horizontal movement
-                            if (lp.y > fp.y)  //If the movement was up
+                            if (lastTouchPos.y > firstTouchPos.y)  //If the movement was up
                             {   //Up swipe
                                 Debug.Log("Up Swipe");
                                 MoveUp();

@@ -39,18 +39,41 @@ public class GameState : MonoBehaviour
     private Animator playerAnim;
 
     private bool gamePaused;
+
+    public PauseButton pauseButton;
+
+    public void PauseGame()
+    {
+        gamePaused = !gamePaused;
+        pauseButton.TogglePause();
+        playerBall.gamePaused = !playerBall.gamePaused;
+    }
+
+    public void Retry()
+    {
+        StartCoroutine(Death());
+    }
+
+    public void BackToMainMenu()
+    {
+        SceneManager.LoadScene("MainMenu");
+    }
     
     void Update()
     {
         CountDownTimer();
-        if (Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.Q))
+        if (!gamePaused)
         {
-            StartCoroutine(Death());
-        }
+            if (Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.Q))
+            {
+                StartCoroutine(Death());
+            }
 
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            gamePaused = !gamePaused;
+            if (Input.GetKeyDown(KeyCode.P))
+            {
+                pauseButton.TogglePause();
+                gamePaused = !gamePaused;
+            }
         }
     }
 
@@ -90,6 +113,9 @@ public class GameState : MonoBehaviour
 
     public IEnumerator Death()
     {
+        gamePaused = true;
+        playerBall.gamePaused = true;
+        pauseButton.Pause();
         if (currentLives > 0)
         {
             //Play Death Sound and Animation
@@ -117,7 +143,10 @@ public class GameState : MonoBehaviour
 
     public IEnumerator DeathByTileFall(Animator tileAnimator)
     {
-        if (currentLives >= 0)
+        gamePaused = true;
+        playerBall.gamePaused = true;
+        pauseButton.Pause();
+        if (currentLives > 0)
         {
             //Play Death Sound and Animation
             UpDateLives(-1);
@@ -133,6 +162,8 @@ public class GameState : MonoBehaviour
             //Load back to the Main Menu
             gameOverText.gameObject.SetActive(true);
             gameOverText.gameObject.GetComponent<Animator>().Play("gameOver");
+
+            tileAnimator.Play("tileFall");
             audioSource.PlayOneShot(gameOver);
             yield return new WaitForSeconds(gameOver.length + 0.90f);
             SceneManager.LoadScene("MainMenu");
@@ -151,6 +182,7 @@ public class GameState : MonoBehaviour
         playerBall = playerB;
         gamePaused = true;
         playerBall.gamePaused = true;
+        pauseButton.Pause();
         playerStarted = false;
         timeText.color = new Color(0.749f, 0.749f, 0.749f);
         levelSpawner = lSpawner;
@@ -167,6 +199,8 @@ public class GameState : MonoBehaviour
         playerStarted = true;
         gamePaused = false;
         playerBall.gamePaused = false;
+
+        pauseButton.UnPause();
     }
 
     public void SetUpFinalTally()
@@ -174,6 +208,7 @@ public class GameState : MonoBehaviour
         playerStarted = false;
         gamePaused = true;
         playerBall.gamePaused = true;
+        pauseButton.Pause();
         previousScore = currentScore;
         finishedTime = (int)currentLevelTime;
     }
@@ -191,6 +226,7 @@ public class GameState : MonoBehaviour
         }
 
         //Teleport
+        scoreText.text = "000000";
         audioSource.PlayOneShot(teleportOut);
         playerAnim.Play("teleportOut");
         levelSpawner.gameGrid.AnimateTileTeleport();
