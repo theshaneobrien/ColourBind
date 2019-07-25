@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class LevelSpawner : MonoBehaviour
 {
@@ -106,6 +107,10 @@ public class LevelSpawner : MonoBehaviour
             SpawnLevel(currentLevel);
             SpawnGameGridTiles(currentLevel);
             StartCoroutine(gameState.SetUpGameState(this, currentLevel.levelTime, currentLevel.levelName, playerBall));
+        }
+        else
+        {
+            SceneManager.LoadScene("WIN");
         }
     }
 
