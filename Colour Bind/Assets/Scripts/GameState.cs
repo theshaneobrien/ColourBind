@@ -238,7 +238,7 @@ public class GameState : MonoBehaviour
         }
 
         //Teleport
-        scoreText.text = "000000";
+        timeText.text = "000000";
         audioSource.PlayOneShot(teleportOut);
         playerAnim.Play("teleportOut");
         levelSpawner.gameGrid.AnimateTileTeleport();
