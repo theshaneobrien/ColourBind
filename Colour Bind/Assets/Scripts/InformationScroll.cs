@@ -8,9 +8,7 @@ public class InformationScroll : MonoBehaviour
     public Text infoBox;
     private List<string> information = new List<string>();
     private Animator anim;
-    private float timeToLoopMessages = 60f;
     private float timeToShowMessages = 3.15f;
-    private float currentLoop = 0;
     private float currentMessageTime = 0;
     private int informationIndex = 0;
     public bool changeIndex = false;
